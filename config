@@ -1,0 +1,14 @@
+[
+	{
+		"tag":"baidu",
+		"name":"百度应用",
+		"url":"http://m.baidu.com/s?st=10a001&tn=webmkt&word=$$$",
+		"l":"<div class=\"ban_date gray\">",
+		"r":"</div>",
+	},
+	{
+		"tag":"yingyongbao",
+		"name":"应用宝",
+		"url":"http://android.myapp.com/myapp/searchAjax.htm?kw=$$$"
+	}
+]
