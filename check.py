@@ -11,7 +11,7 @@ import re
 import platform
 import urllib2
 import json
-from urllib import urlencode
+from urllib import quote
 
 
 def genRequestUrl(url,appName):
@@ -28,16 +28,39 @@ def doRequest(url):
 		return None
 	return raw
 
+def parseHref(s):
+	href = ''
+	pattern=re.compile(HREF_PATTEN)
+	suspects = pattern.findall(s)
+	print suspects
+	
+	if(len(suspects) > 0 ):
+		href = suspects[0]
+	return href
+
+def getDetailUrl(s,l,r):
+	link = ''
+	indexL = s.index(l)
+	s = s[indexL:]
+	indexR = s.index(r)
+	s = s[:indexR]
+	href = parseHref(s)
+	return href
+
+
+def log(s):
+	f = open('log.txt','a')
+	f.write(s)
+	f.close()
+
 
 def doCheck(appName,markets,targetVersion=''):
-	print '\n开始检查...'
 	print('app:'+appName)
 	checkResult = []
 	for market in markets:
 		version = ''
 		passed = -1
 		url = genRequestUrl(market['url'],appName)
-		print url
 		marketTag = market['tag']
 
 		try:
@@ -49,8 +72,48 @@ def doCheck(appName,markets,targetVersion=''):
 				if(appName in mostSimilarAppName):
 					version = jsonResult['obj']['appDetails'][0]['versionName']
 			# 百度 get -> html
-			elif('baidu' == marketTag):
+			# 安卓网 get -> html
+			elif('baidu' == marketTag
+				or 'hiapk' == marketTag):
 				version = parseVersion(doRequest(url),market['l'],market['r'])
+			# 应用汇 list->detail
+			elif('appchina' == marketTag):
+				href = getDetailUrl(doRequest(url),market['detail']['l'],market['detail']['r'])
+				detailUrl = 'http://www.appchina.com'+href
+				detailHtmlStr = doRequest(detailUrl)
+				version = parseVersion(detailHtmlStr,market['l'],market['r'])
+			# 软吧 list->detail Url encode使用gb2312
+			elif('ruan8' == marketTag):
+				'''
+	{
+		"tag":"ruan8",
+		"name":"软吧",
+		"url":"http://www.ruan8.com/search.php?stype=12&keyword=$$$",
+		"l":"<ul class=\"mdccs\"",
+		"r":"</ul>",
+		"detail":{
+			"l":"<span class=listname",
+			"r":"</a>",
+		}
+	}
+'''
+				url = genRequestUrl(market['url'],quote(appName.decode('utf-8').encode('gb2312')))
+				url = url.encode('utf-8')
+				htmlStr = doRequest(url)
+				htmlStr = htmlStr.decode('gb2312').encode('utf-8')
+				detailUrl = 'http://www.ruan8.com'+getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])+'.html'
+				log('detailUrl:'+detailUrl)
+				detailHtmlStr = doRequest(detailUrl)
+				detailHtmlStr = detailHtmlStr.decode('gb2312').encode('utf-8')
+				version = parseVersion(detailHtmlStr,market['l'],market['r'])
+			# 手机世界 jsonp
+			elif('3533' == marketTag):
+				jsonResult = json.loads(doRequest(url))
+				mostSimilarAppName = jsonResult['data'][0]['topic_cn']
+				mostSimilarAppName = mostSimilarAppName.encode('utf-8') # ！
+				if(appName in mostSimilarAppName):
+					detailUrl = 'http://a.3533.com/ruanjian/'+jsonResult['data'][0]['id']+'.htm'
+					version = parseVersion(doRequest(detailUrl),market['l'],market['r'])
 			else:
 				pass
 		except Exception,e:  
@@ -119,7 +182,7 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 		<th class="'+styleStr+'">$name$</td>\
 		<td>$version$</td>\
 		<td>$passed$</td>\
-		<td><a href="$url$">查看详情</a></td>\
+		<td><a target="_blank" href="$url$">查看详情</a></td>\
 		</tr>'
 		tr = tr.replace('$name$',result['name']).replace('$url$',result['url'])
 		if(1 == result['passed']):
@@ -174,6 +237,8 @@ def parseVersion(s,l,r):
 			if suspect.count('.') > 1:
 				v = suspect
 				break
+	else:
+		v = suspects[0]
 	return v
 
 STYLE = '''
@@ -281,7 +346,7 @@ th.specalt {
 '''
 
 VERSION_PATTEN = '\d+[\.|\d]+\d+'
-
+HREF_PATTEN = 'href=\"(.+?)\"'
 
 if __name__ == '__main__':
 	appName = ''

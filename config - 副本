@@ -35,5 +35,16 @@
 		"url":"http://search.3533.com/search/app/?keyword=$$$",
 		"l":"<p itemprop=",
 		"r":"</p>",
+	},
+	{
+		"tag":"ruan8",
+		"name":"软吧",
+		"url":"http://www.ruan8.com/search.php?stype=12&keyword=$$$",
+		"l":"<ul class=\"mdccs\"",
+		"r":"</ul>",
+		"detail":{
+			"l":"<span class=listname",
+			"r":"</a>",
+		}
 	}
 ]
