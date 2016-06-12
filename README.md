@@ -16,7 +16,27 @@
 ```
 脚本将会扫描预先配置的多个安卓应用市场，并在amavc/reports目录下分别生成`json、html格式的两份检测报告文件`。
 ###json文件的格式如下：
- ![image](https://github.com/woojean/amavc/raw/master/imgs/json.png)
+```javascript
+{
+    "date": "2016-06-12", 
+    "targetVersion": "2.4.0", 
+    "checkReult": [
+        {
+            "url": "http://m.baidu.com/s?st=10a001&tn=webmkt&word=俺来也", 
+            "tag": "baidu", 
+            "passed": 1, 
+            "name": "百度应用", 
+            "version": "2.4.1"
+        }, 
+        {
+            "url": "http://android.myapp.com/myapp/searchAjax.htm?kw=俺来也", 
+            "tag": "yingyongbao", 
+            "passed": 1, 
+            "name": "应用宝", 
+            "version": "2.4.1"
+        },
+        ...
+```
 ###html文件的内容如下：
  ![image](https://github.com/woojean/amavc/raw/master/imgs/report.png)
 如果因为网络超时，或者解析误判等原因造成版本解析失败，可以点击报告中的`“查看详情”`，快速进行人工判断。
