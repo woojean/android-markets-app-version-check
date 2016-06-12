@@ -166,10 +166,14 @@ def versionCompare(v1,v2):
 			return False
 		else:
 			continue
-	return True
+	if(len(arr2) > len(arr1)):
+		return False
+	else:
+		return True
 
 
 def dumpReport(appName,checkResult,targetVersion = ''):
+	print('\n')
 	html = '<html><head><meta charset="UTF-8"><style>$style$</style></head><body>\
 	<div class="result">\
 		<label>应用名称：<span>$appName$</span><label/><br/>\
@@ -245,6 +249,9 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 		f = open(reportFile,'w')
 		f.write(html)
 		f.close()
+
+		print('json file generated at '+jsonFile)
+		print('report file generated at '+reportFile)
 	finally:
 		f.close()
 
