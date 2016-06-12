@@ -1,6 +1,4 @@
 log.txt
-reports/*.html
-reports/*.json
 test.py
 
 
