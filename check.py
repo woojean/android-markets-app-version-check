@@ -11,18 +11,16 @@ import re
 import platform
 import urllib2
 import json
-from urllib import quote
+from urllib import urlencode
 
 
 def genRequestUrl(url,appName):
 	return url.replace('$$$',appName)
 
-
 def doRequest(url):
 	try:
 		req = urllib2.Request(url) 
-		req.add_header('User-Agent', 'Mozilla 5.10')
-		res = urllib2.urlopen( req ,timeout = 10) 
+		res = urllib2.urlopen( req ) 
 		raw = res.read() 
 		res.close()
 	except Exception, ex:
@@ -31,40 +29,17 @@ def doRequest(url):
 	return raw
 
 
-def parseHref(s):
-	href = ''
-	pattern=re.compile(HREF_PATTEN)
-	suspects = pattern.findall(s)
-	
-	if(len(suspects) > 0 ):
-		href = suspects[0]
-	return href
-
-
-def getDetailUrl(s,l,r):
-	link = ''
-	indexL = s.index(l)
-	s = s[indexL:]
-	indexR = s.index(r)
-	s = s[:indexR]
-	href = parseHref(s)
-	return href
-
-
-def log(s):
-	f = open('log.txt','a')
-	f.write(s)
-	f.close()
-
-
 def doCheck(appName,markets,targetVersion=''):
+	print '\n开始检查...'
+	print('app:'+appName)
 	checkResult = []
 	for market in markets:
 		version = ''
 		passed = -1
 		url = genRequestUrl(market['url'],appName)
+		print url
 		marketTag = market['tag']
-		print(marketTag+' ...')
+
 		try:
 			# 应用宝 ajax -> json
 			if('yingyongbao' == marketTag):
@@ -73,65 +48,9 @@ def doCheck(appName,markets,targetVersion=''):
 				mostSimilarAppName = mostSimilarAppName.encode('utf-8') # ！
 				if(appName in mostSimilarAppName):
 					version = jsonResult['obj']['appDetails'][0]['versionName']
-			# 魅族 ajax -> json
-			elif('meizu' == marketTag):
-				url = genRequestUrl(market['url'],quote(appName))
-				jsonResult = json.loads(doRequest(url))
-				version = jsonResult['value']['list'][0]['version_name']
 			# 百度 get -> html
-			# 安卓网 get -> html
-			elif('baidu' == marketTag
-				or 'hiapk' == marketTag
-				or 'coolapk' == marketTag):
+			elif('baidu' == marketTag):
 				version = parseVersion(doRequest(url),market['l'],market['r'])
-			elif('topber' == marketTag):
-				url = (market['url']).replace('$$$',quote(appName))
-				version = parseVersion(doRequest(url),market['l'],market['r'])
-			# list->detail
-			# 应用汇
-			# 360 
-			# 豌豆荚
-			# 小米应用商店
-			# 安智市场
-			# 乐商店
-			# 机锋网
-			# ...
-			elif(marketTag in ['appchina','360','wandoujia','mi','anzhi','lenovomm','gfan']):
-				htmlStr = doRequest(url)
-				href = getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
-				detailUrl = market['prefix']+href
-				detailHtmlStr = doRequest(detailUrl)
-				version = parseVersion(detailHtmlStr,market['l'],market['r'])
-			# 华为应用市场
-			# PP助手
-			# oppo软件商店
-			elif('hicloud' == marketTag
-				or '25pp' == marketTag
-				or 'oppomobile' == marketTag):
-				url = (market['url']).replace('$$$',quote(appName))
-				htmlStr = doRequest(url)
-				href = getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
-				detailUrl = market['prefix']+href
-				detailHtmlStr = doRequest(detailUrl)
-				version = parseVersion(detailHtmlStr,market['l'],market['r'])
-			# 软吧 list->detail Url encode使用gb2312
-			elif('ruan8' == marketTag):
-				url = genRequestUrl(market['url'],quote(appName.decode('utf-8').encode('gb2312')))
-				url = url.encode('utf-8')
-				htmlStr = doRequest(url)
-				htmlStr = htmlStr.decode('gb2312').encode('utf-8')
-				detailUrl = 'http://www.ruan8.com'+getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
-				detailHtmlStr = doRequest(detailUrl)
-				detailHtmlStr = detailHtmlStr.decode('gbk').encode('utf-8')
-				version = parseVersion(detailHtmlStr,market['l'],market['r'])
-			# 手机世界 jsonp
-			elif('3533' == marketTag):
-				jsonResult = json.loads(doRequest(url))
-				mostSimilarAppName = jsonResult['data'][0]['topic_cn']
-				mostSimilarAppName = mostSimilarAppName.encode('utf-8') # ！
-				if(appName in mostSimilarAppName):
-					detailUrl = 'http://a.3533.com/ruanjian/'+jsonResult['data'][0]['id']+'.htm'
-					version = parseVersion(doRequest(detailUrl),market['l'],market['r'])
 			else:
 				pass
 		except Exception,e:  
@@ -144,13 +63,12 @@ def doCheck(appName,markets,targetVersion=''):
 		result = {
 			'tag':market['tag'],
 			'name':market['name'],
-			'version':version,
+			'version':version.encode('utf-8'),
 			'url':url,
 			'passed':passed
 		}
 		checkResult.append(result)
 	return checkResult
-
 
 # 如果 v1 >= v2，则返回true
 def versionCompare(v1,v2):
@@ -160,20 +78,14 @@ def versionCompare(v1,v2):
 	if(len(arr2) < length):
 		length = len(arr2)
 	for i in range(0,length):
-		if(int(arr1[i]) > int(arr2[i])):
+		if(int(arr1[i]) >= int(arr2[i])):
 			return True
-		elif(int(arr1[i]) < int(arr2[i])):
-			return False
-		else:
-			continue
-	if(len(arr2) > len(arr1)):
-		return False
-	else:
-		return True
+	return False
+
+
 
 
 def dumpReport(appName,checkResult,targetVersion = ''):
-	print('\n')
 	html = '<html><head><meta charset="UTF-8"><style>$style$</style></head><body>\
 	<div class="result">\
 		<label>应用名称：<span>$appName$</span><label/><br/>\
@@ -182,7 +94,6 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 		<table cellspacing="0" summary="amavc check result">\
 		<caption>Android应用市场最新版本检查结果</caption> \
 		<tr>\
-			<th class="tablehead"></th>\
 			<th class="tablehead">应用市场名称</th>\
 			<th class="tablehead">当前版本</th>\
 			<th class="tablehead">是否最新</th>\
@@ -198,7 +109,6 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 	date = time.strftime("%Y-%m-%d",time.localtime(time.time()))
 	trs = ''
 	rowStyle = True
-	num = 1
 	for result in checkResult:
 		styleStr = "spec"
 		if(rowStyle):
@@ -206,24 +116,22 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 			styleStr = "specalt"
 			
 		tr = '<tr>\
-		<th class="'+styleStr+'">'+str(num)+'</td>\
 		<th class="'+styleStr+'">$name$</td>\
 		<td>$version$</td>\
 		<td>$passed$</td>\
-		<td><a target="_blank" href="$url$">查看详情</a></td>\
+		<td><a href="$url$">查看详情</a></td>\
 		</tr>'
 		tr = tr.replace('$name$',result['name']).replace('$url$',result['url'])
 		if(1 == result['passed']):
-			tr = tr.replace('$version$','<font color="green">'+str(result['version']))+'</font>'
+			tr = tr.replace('$version$','<font color="green">'+result['version'])+'</font>'
 			tr = tr.replace('$passed$','<font color="green">已是最新</font>')
 		elif( 0 == result['passed'] ):
-			tr = tr.replace('$version$','<font color="red">'+str(result['version']))+'</font>'
+			tr = tr.replace('$version$','<font color="red">'+result['version'])+'</font>'
 			tr = tr.replace('$passed$','<font color="red">不是最新</font>')
 		else:
-			tr = tr.replace('$version$','<font color="black">'+str(result['version']))+'</font>'
+			tr = tr.replace('$version$','<font color="black">'+result['version'])+'</font>'
 			tr = tr.replace('$passed$','<font color="black">未知</font>')
 		trs += tr
-		num += 1
 	html = html.replace('$style$',STYLE).replace('$appName$',appName).replace('$now$',now).replace('$trs$',trs)
 	if('' != targetVersion):
 		html = html.replace('$targetVersion$',targetVersion)
@@ -240,27 +148,18 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 		'date':date,
 		'checkReult':checkResult
 	}
+	f = open(jsonFile,'w')
+	f.write(json.dumps(jsonResult))
+	f.close()
 
-	try:
-		f = open(jsonFile,'w')
-		f.write(json.dumps(jsonResult))
-		f.close()
-
-		f = open(reportFile,'w')
-		f.write(html)
-		f.close()
-
-		print('json file generated at '+jsonFile)
-		print('report file generated at '+reportFile)
-	finally:
-		f.close()
-
+	f = open(reportFile,'w')
+	f.write(html)
+	f.close()
 
 def loadConfig(file):
 	f = open(file,'r').read()
 	config = eval(f)
 	return config
-
 
 def parseVersion(s,l,r):
 	v = ''
@@ -270,18 +169,12 @@ def parseVersion(s,l,r):
 	s = s[:indexR]
 	pattern=re.compile(VERSION_PATTEN)
 	suspects = pattern.findall(s)
-	print(suspects)
 	if(len(suspects)>1):
 		for suspect in suspects:
-			if(len(suspect.split('.')[0])>3):
-				continue
-			elif(suspect.count('.') > 1):
+			if suspect.count('.') > 1:
 				v = suspect
 				break
-	else:
-		v = suspects[0]
 	return v
-
 
 STYLE = '''
 body {
@@ -388,7 +281,7 @@ th.specalt {
 '''
 
 VERSION_PATTEN = '\d+[\.|\d]+\d+'
-HREF_PATTEN = 'href=\"(.+?)\"'
+
 
 if __name__ == '__main__':
 	appName = ''
@@ -413,3 +306,8 @@ if __name__ == '__main__':
 	markets = loadConfig('config')
 	result = doCheck(appName,markets,version)
 	dumpReport(appName,result,version)
+
+
+
+
+
