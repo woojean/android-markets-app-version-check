@@ -21,8 +21,9 @@
 	{
 		"tag":"appchina",
 		"name":"应用汇",
+		"prefix":"http://www.appchina.com",
 		"url":"http://www.appchina.com/sou/$$$",
-		"l":"<div class=\"ban_date gray\">",
+		"l":"<div class=\"intro app-other-info-intro\"",
 		"r":"</div>",
 		"detail":{
 			"l":"<a class=\"view-detail has-border\"",
@@ -35,5 +36,150 @@
 		"url":"http://search.3533.com/search/app/?keyword=$$$",
 		"l":"<p itemprop=",
 		"r":"</p>",
+	},
+	{
+		"tag":"360",
+		"name":"360手机助手应用市场",
+		"prefix":"http://zhushou.360.cn",
+		"url":"http://zhushou.360.cn/search/index/?kw=$$$",
+		"l":"<div class=\"base-info\"",
+		"r":"</div>",
+		"detail":{
+			"l":"<h3>",
+			"r":"</h3>",
+		}
+	},
+	{
+		"tag":"wandoujia",
+		"name":"豌豆荚",
+		"prefix":"",
+		"url":"http://www.wandoujia.com/search?key=$$$",
+		"l":"<dl class=\"infos-list\"",
+		"r":"</dl>",
+		"detail":{
+			"l":"<div class=\"app-desc\"",
+			"r":"</div>",
+		}
+	},
+	{
+		"tag":"mi",
+		"name":"小米应用商店",
+		"prefix":"http://app.mi.com",
+		"url":"http://app.mi.com/search?keywords=$$$",
+		"l":"<div class=\"details preventDefault\"",
+		"r":"</div>",
+		"detail":{
+			"l":"<h5>",
+			"r":"</h5>",
+		}
+	},
+	{
+		"tag":"anzhi",
+		"name":"安智市场",
+		"prefix":"http://www.anzhi.com",
+		"url":"http://www.anzhi.com/search.php?keyword=$$$",
+		"l":"<span class=\"app_detail_version\"",
+		"r":"</span>",
+		"detail":{
+			"l":"<span class=\"app_name\"",
+			"r":"</span>",
+		}
+	},
+	{
+		"tag":"lenovomm",
+		"name":"乐商店",
+		"prefix":"",
+		"url":"http://www.lenovomm.com/search/index.html?q=$$$",
+		"l":"<ul class=\"detailAppInfo fl\"",
+		"r":"</ul>",
+		"detail":{
+			"l":"<div class=\"appDetails\"",
+			"r":"</div>",
+		}
+	},
+	{
+		"tag":"gfan",
+		"name":"机锋网",
+		"prefix":"",
+		"url":"http://apk.gfan.com/search?q=$$$",
+		"l":"<div class=\"app-info\"",
+		"r":"</div>",
+		"detail":{
+			"l":"<span class=\"apphot-tit\"",
+			"r":"</span>",
+		}
+	},
+	{
+		"tag":"hicloud",
+		"name":"华为应用市场",
+		"prefix":"",
+		"url":"http://appstore.huawei.com/search/$$$",
+		"l":"class=\"app-info flt\"",
+		"r":"</div>",
+		"detail":{
+			"l":"<div class=\"game-info-ico\"",
+			"r":"<img",
+		}
+	},
+	{
+		"tag":"topber",
+		"name":"安卓市场",
+		"url":"http://www.topber.com/$$$.html",
+		"l":"<dt class=\"search\"",
+		"r":"</dt>"
+	},
+	{
+		"tag":"meizu",
+		"name":"魅族应用商店",
+		"prefix":"",
+		"url":"http://app.meizu.com/apps/public/search/page?cat_id=1&keyword=$$$&start=0&max=1",
+		"l":"class=\"app_content ellipsis noPointer",
+		"r":"</div>",
+		"detail":{
+			"l":"<div class=\"search_one downloading\"",
+			"r":"<div",
+		}
+	},
+	{
+		"tag":"ruan8",
+		"name":"软吧",
+		"url":"http://www.ruan8.com/search.php?stype=12&keyword=$$$",
+		"l":"<UL class=mdccs>",
+		"r":"</UL>",
+		"detail":{
+			"l":"<span class=listname",
+			"r":"</a>",
+		}
+	},
+	{
+		"tag":"oppomobile",
+		"name":"oppo软件商店",
+		"prefix":"",
+		"url":"http://store.oppomobile.com/search/do.html?keyword=$$$",
+		"l":"class=\"soft_info_more\"",
+		"r":"</ul>",
+		"detail":{
+			"l":"class=\"li_middle_top\"",
+			"r":"</a>",
+		}
+	},
+	{
+		"tag":"coolapk",
+		"name":"酷安网",
+		"url":"http://www.coolapk.com/search?q=$$$",
+		"l":"class=\"apk-version\"",
+		"r":"</span>"
+	},
+	{
+		"tag":"25pp",
+		"name":"PP助手",
+		"prefix":"http://www.25pp.com",
+		"url":"http://www.25pp.com/android/search/app/$$$",
+		"l":"class=\"app-detail-info\"",
+		"r":"</div>",
+		"detail":{
+			"l":"class=\"app-info\"",
+			"r":"</a>"
+		}
 	}
 ]
