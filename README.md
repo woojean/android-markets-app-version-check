@@ -19,23 +19,23 @@
 ```javascript
 {
     "date": "2016-06-12", 
-    "targetVersion": "2.4.0", 
+    "targetVersion": "4.8.5.10223", 
     "checkReult": [
         {
-            "url": "http://m.baidu.com/s?st=10a001&tn=webmkt&word=俺来也", 
+            "url": "http://m.baidu.com/s?st=10a001&tn=webmkt&word=腾讯视频", 
             "tag": "baidu", 
             "passed": 1, 
             "name": "百度应用", 
-            "version": "2.4.1"
+            "version": "4.8.5.10223"
         }, 
         {
-            "url": "http://android.myapp.com/myapp/searchAjax.htm?kw=俺来也", 
+            "url": "http://android.myapp.com/myapp/searchAjax.htm?kw=腾讯视频", 
             "tag": "yingyongbao", 
             "passed": 1, 
             "name": "应用宝", 
-            "version": "2.4.1"
+            "version": "4.8.5.10223"
         },
-        ...
+        ...（略）
 ```
 ###html文件的内容如下：
  ![image](https://github.com/woojean/amavc/raw/master/imgs/report.png)
