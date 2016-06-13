@@ -37,7 +37,7 @@
         },
         ...（略）
 ```
-###html文件的内容如下：
+###html文件的内容如下图：
  ![image](https://github.com/woojean/amavc/raw/master/imgs/report.png)
 如果因为网络超时，或者解析误判等原因造成版本解析失败，可以点击报告中的`“查看详情”`，快速进行人工判断。
 
