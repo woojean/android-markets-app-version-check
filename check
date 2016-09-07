@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-  
 # @author woojean https://github.com/woojean
-# email:168056828@qq.com
+# email:wxjsyz@vip.qq.com
 
 import os
 import sys
@@ -12,6 +12,111 @@ import platform
 import urllib2
 import json
 from urllib import quote
+
+import threading
+
+class Spider(threading.Thread):
+	_parsedList = []  
+	_market = None
+	def __init__(self,market):  
+		self._market = market
+		threading.Thread.__init__(self)  
+
+  	def _check(self):
+  		market = self._market
+  		version = ''
+		passed = -1
+		url = genRequestUrl(market['url'],appName)
+		marketTag = market['tag']
+		print(marketTag+' ...')
+		try:
+			# 应用宝 ajax -> json
+			if('yingyongbao' == marketTag):
+				jsonResult = json.loads(doRequest(url))
+				mostSimilarAppName = jsonResult['obj']['appDetails'][0]['appName']
+				mostSimilarAppName = mostSimilarAppName.encode('utf-8') # ！
+				if(appName in mostSimilarAppName):
+					version = jsonResult['obj']['appDetails'][0]['versionName']
+				# 魅族 ajax -> json
+			elif('meizu' == marketTag):
+				url = genRequestUrl(market['url'],quote(appName))
+				jsonResult = json.loads(doRequest(url))
+				version = jsonResult['value']['list'][0]['version_name']
+			# 百度 get -> html
+			# 安卓网 get -> html
+			elif('baidu' == marketTag
+				or 'hiapk' == marketTag
+				or 'coolapk' == marketTag):
+				version = parseVersion(doRequest(url),market['l'],market['r'])
+			elif('topber' == marketTag):
+				url = (market['url']).replace('$$$',quote(appName))
+				version = parseVersion(doRequest(url),market['l'],market['r'])
+			# list->detail
+			# 应用汇
+			# 360 
+			# 豌豆荚
+			# 小米应用商店
+			# 安智市场
+			# 乐商店
+			# 机锋网
+			# ...
+			elif(marketTag in ['appchina','360','wandoujia','mi','anzhi','lenovomm','gfan']):
+				htmlStr = doRequest(url)
+				href = getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
+				detailUrl = market['prefix']+href
+				detailHtmlStr = doRequest(detailUrl)
+				version = parseVersion(detailHtmlStr,market['l'],market['r'])
+			# 华为应用市场
+			# PP助手
+			# oppo软件商店
+			elif('hicloud' == marketTag
+				or '25pp' == marketTag
+				or 'oppomobile' == marketTag):
+				url = (market['url']).replace('$$$',quote(appName))
+				htmlStr = doRequest(url)
+				href = getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
+				detailUrl = market['prefix']+href
+				detailHtmlStr = doRequest(detailUrl)
+				version = parseVersion(detailHtmlStr,market['l'],market['r'])
+			# 软吧 list->detail Url encode使用gb2312
+			elif('ruan8' == marketTag):
+				url = genRequestUrl(market['url'],quote(appName.decode('utf-8').encode('gb2312')))
+				url = url.encode('utf-8')
+				htmlStr = doRequest(url)
+				htmlStr = htmlStr.decode('gb2312').encode('utf-8')
+				detailUrl = 'http://www.ruan8.com'+getDetailUrl(htmlStr,market['detail']['l'],market['detail']['r'])
+				detailHtmlStr = doRequest(detailUrl)
+				detailHtmlStr = detailHtmlStr.decode('gbk').encode('utf-8')
+				version = parseVersion(detailHtmlStr,market['l'],market['r'])
+			# 手机世界 jsonp
+			elif('3533' == marketTag):
+				jsonResult = json.loads(doRequest(url))
+				mostSimilarAppName = jsonResult['data'][0]['topic_cn']
+				mostSimilarAppName = mostSimilarAppName.encode('utf-8') # ！
+				if(appName in mostSimilarAppName):
+					detailUrl = 'http://a.3533.com/ruanjian/'+jsonResult['data'][0]['id']+'.htm'
+					version = parseVersion(doRequest(detailUrl),market['l'],market['r'])
+			else:
+				pass
+		except Exception,e:  
+			pass
+		if('' != version and '' != targetVersion):
+			if(versionCompare(version,targetVersion)):
+				passed = 1
+			else:
+				passed = 0
+		result = {
+			'tag':market['tag'],
+			'name':market['name'],
+			'version':version,
+			'url':url,
+			'passed':passed
+		}
+		Spider._parsedList.append(result)
+
+	def run(self):
+		self._check()
+
 
 
 def genRequestUrl(url,appName):
@@ -59,6 +164,17 @@ def log(s):
 
 def doCheck(appName,markets,targetVersion=''):
 	checkResult = []
+	length = len(markets)
+	for market in markets:
+		spider = Spider(market)
+		spider.start()
+
+	while(length > len(Spider._parsedList)):
+		continue
+
+	return Spider._parsedList
+
+	'''
 	for market in markets:
 		version = ''
 		passed = -1
@@ -150,6 +266,7 @@ def doCheck(appName,markets,targetVersion=''):
 		}
 		checkResult.append(result)
 	return checkResult
+	'''
 
 
 # 如果 v1 >= v2，则返回true
@@ -392,7 +509,7 @@ HREF_PATTEN = 'href=\"(.+?)\"'
 
 if __name__ == '__main__':
 	appName = ''
-	version = ''
+	targetVersion = ''
 	params = len(sys.argv)
 	if(params < 2):
 		exit(1)
@@ -400,16 +517,16 @@ if __name__ == '__main__':
 		appName = sys.argv[1]
 	elif(params > 2):
 		appName = sys.argv[1]
-		version = sys.argv[2]
+		targetVersion = sys.argv[2]
 
 	platformName = platform.system()
 	if('Windows' == platformName):
 		appName = appName.decode('gb2312').encode('utf-8')
-		version = version.decode('gb2312').encode('utf-8')
-		if(len(re.compile(VERSION_PATTEN).findall(version)) < 1):
-			print 'invalid version code:'+ version
+		targetVersion = targetVersion.decode('gb2312').encode('utf-8')
+		if(len(re.compile(VERSION_PATTEN).findall(targetVersion)) < 1):
+			print 'invalid targetVersion code:'+ targetVersion
 			exit(1)
 
 	markets = loadConfig('config')
-	result = doCheck(appName,markets,version)
-	dumpReport(appName,result,version)
+	result = doCheck(appName,markets,targetVersion)
+	dumpReport(appName,result,targetVersion)
