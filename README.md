@@ -12,7 +12,7 @@
 例如腾讯视频当前最新的发布版本是4.8.5.10223，现在想要检测新版本的发布情况，可以在项目目录下执行如下命令：
 ```
   cd /yourpath/android-markets-app-version-check
-  python check 腾讯视频 4.8.5.10223
+  python check.py 腾讯视频 4.8.5.10223
 ```
 脚本将会扫描预先配置的多个安卓应用市场，并在android-markets-app-version-check/reports目录下分别生成`json、html格式的两份检测报告文件`。
 ###json文件的格式如下：
