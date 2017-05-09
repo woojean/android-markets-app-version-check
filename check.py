@@ -157,9 +157,8 @@ def getDetailUrl(s,l,r):
 
 
 def log(s):
-	f = open('log.txt','a')
-	f.write(s)
-	f.close()
+	with open('log.txt', 'a') as f:
+		f.write(s)
 
 
 def doCheck(appName,markets,targetVersion=''):
@@ -359,19 +358,17 @@ def dumpReport(appName,checkResult,targetVersion = ''):
 	}
 
 	try:
-		f = open(jsonFile,'w')
-		f.write(json.dumps(jsonResult))
-		f.close()
+		jsonStr = json.dumps(jsonResult)
+		with open(jsonFile, 'w') as f:
+			f.write(jsonStr)
 
-		f = open(reportFile,'w')
-		f.write(html)
-		f.close()
+		with open(reportFile, 'w') as f:
+			f.write(html)
 
 		print('json file generated at '+jsonFile)
 		print('report file generated at '+reportFile)
 	finally:
-		f.close()
-
+		pass
 
 def loadConfig(file):
 	f = open(file,'r').read()
@@ -400,109 +397,7 @@ def parseVersion(s,l,r):
 	return v
 
 
-STYLE = '''
-body {
-	color: #4f6b72;
-}
-
-a {
-	color: #c75f3e;
-}
-
-label{
-	font: bold 1.2em;
-}
-
-span{
-	font: normal 1.2em;
-}
-
-table {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	border:1px;
-	border-radius:0.8em;
-}
-
-caption {
-	padding: 0 0 5px 0;
-	width: 100%;	 
-	font: italic 1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-	text-align: right;
-}
-
-th {
-	font: bold 1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-	color: #4f6b72;
-	border-left: 1px solid #C1DAD7;
-	border-right: 1px solid #C1DAD7;
-	border-bottom: 1px solid #C1DAD7;
-	border-top: 1px solid #C1DAD7;
-	letter-spacing: 2px;
-	text-transform: uppercase;
-	text-align: center;
-	padding: 6px 6px 6px 12px;
-	background: white;
-}
-
-th.nobg {
-	border-top: 0;
-	border-left: 0;
-	border-right: 1px solid #C1DAD7;
-	background: none;
-}
-
-td {
-	border-right: 1px solid #C1DAD7;
-	border-bottom: 1px solid #C1DAD7;
-	background: #fff;
-	padding: 6px 6px 6px 12px;
-	color: #4f6b72;
-	text-align: center;
-}
-
-
-td.alt {
-	background: #F5FAFA;
-	color: #797268;
-}
-
-th.spec {
-	border-left: 1px solid #C1DAD7;
-	border-top: 0;
-	font: bold 1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-}
-
-th.specalt {
-	border-left: 1px solid #C1DAD7;
-	border-top: 0;
-	font: bold 1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-	color: #797268;
-}
-
-.result {
-	width:55%;
-	background: #eee;
-	padding:40px;
-	padding-bottom:20px;
-	margin-top:40px;
-	margin-left:auto;
-	margin-right:auto;
-}
-
-.tablehead{
-	background: #ddd;
-	font: lighter 1.1em "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-}
-
-
-.from{
-	margin-top:50px;
-	text-align:right;
-}
-
-'''
+STYLE = '''body {color: #4f6b72;}a {color: #c75f3e;}label{font: bold 1.2em;}span{font: normal 1.2em;}table {width: 100%;padding: 0;margin: 0;border:1px;border-radius:0.8em;}caption {padding: 0 0 5px 0;width: 100%;	 font: italic 1em 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;text-align: right;}th {font: bold 1em 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;color: #4f6b72;border-left: 1px solid #C1DAD7;border-right: 1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;border-top: 1px solid #C1DAD7;letter-spacing: 2px;text-transform: uppercase;text-align: center;padding: 6px 6px 6px 12px;background: white;}th.nobg {border-top: 0;border-left: 0;border-right: 1px solid #C1DAD7;background: none;}td {border-right: 1px solid #C1DAD7;border-bottom: 1px solid #C1DAD7;background: #fff;padding: 6px 6px 6px 12px;color: #4f6b72;text-align: center;}td.alt {background: #F5FAFA;color: #797268;}th.spec {border-left: 1px solid #C1DAD7;border-top: 0;font: bold 1em 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;}th.specalt {border-left: 1px solid #C1DAD7;border-top: 0;font: bold 1em 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;color: #797268;}.result {width:55%;background: #eee;padding:40px;padding-bottom:20px;margin-top:40px;margin-left:auto;margin-right:auto;}.tablehead{background: #ddd;font: lighter 1.1em 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;}.from{margin-top:50px;text-align:right;}'''
 
 VERSION_PATTEN = '\d+[\.|\d]+\d+'
 HREF_PATTEN = 'href=\"(.+?)\"'
