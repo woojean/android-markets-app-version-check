@@ -15,6 +15,7 @@
   python check.py 腾讯视频 4.8.5.10223
 ```
 脚本将会扫描预先配置的多个安卓应用市场，并在android-markets-app-version-check/reports目录下分别生成`json、html格式的两份检测报告文件`。
+
 ###json文件的格式如下：
 ```javascript
 {
@@ -37,6 +38,7 @@
         },
         ...（略）
 ```
+
 ###html文件的内容如下图：
  ![image](https://github.com/woojean/android-markets-app-version-check/raw/master/imgs/report.png)
 如果因为网络超时，或者解析误判等原因造成版本解析失败，可以点击报告中的`“查看详情”`，快速进行人工判断。
